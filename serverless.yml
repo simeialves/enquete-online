@@ -1,0 +1,60 @@
+org: simeialves
+app: enquete-online
+service: enquete-online
+frameworkVersion: "3"
+
+custom:
+  tableName: "users-table-${sls:stage}"
+  tableName2: "survey-table-${sls:stage}"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [SurveyTable, Arn]
+  environment:
+    USERS_TABLE: ${self:custom.tableName}
+    SURVEY_TABLE: ${self:custom.tableName2}
+
+functions:
+  api:
+    handler: index.handler
+    events:
+      - httpApi: "*"
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName}
+    SurveyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: surveyId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: surveyId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName2}
