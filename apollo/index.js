@@ -70,8 +70,6 @@ const typeDefs = `#graphql
       survey: [Survey]
       survey_items: [SurveyItems]
       poll_items: [PollItems]
-
-      surveyById: [Survey]
     }
 
     type Mutation {
