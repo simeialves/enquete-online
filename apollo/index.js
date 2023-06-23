@@ -35,8 +35,6 @@ async function getAllSurveyItems() {
 }
 
 async function getSurveyItemsBySurveyId(surveyId) {
-  console.log("surveyId", surveyId);
-
   return await axios
     .get(
       `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-Items/survey/${surveyId}`
