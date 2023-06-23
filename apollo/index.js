@@ -34,6 +34,20 @@ async function getAllSurveyItems() {
     });
 }
 
+async function getSurveyItemsBySurveyId(surveyId) {
+  console.log("surveyId", surveyId);
+
+  return await axios
+    .get(
+      `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-Items/survey/${surveyId}`
+    )
+    .then((response) => response.data)
+    .catch((error) => {
+      console.log("Erro ao buscar as enquetes:", error);
+      return [];
+    });
+}
+
 async function getAllPollItems() {
   return await axios
     .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items")
@@ -70,6 +84,8 @@ const typeDefs = `#graphql
       survey: [Survey]
       survey_items: [SurveyItems]
       poll_items: [PollItems]
+      surveyById(surveyId: String): Survey
+      surveyItemsBySurveyId(surveyId: String): [SurveyItems]
     }
 
     type Mutation {
@@ -89,9 +105,13 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    survey: () => getAllSurvey(),
-    survey_items: () => getAllSurveyItems(),
-    poll_items: () => getAllPollItems(),
+    survey: async () => await getAllSurvey(),
+    survey_items: async () => await getAllSurveyItems(),
+    poll_items: async () => await getAllPollItems(),
+
+    surveyById: async (_, { surveyId }) => await getSurveyById(surveyId),
+    surveyItemsBySurveyId: async (_, { surveyId }) =>
+      await getSurveyItemsBySurveyId(surveyId),
   },
   Mutation: {
     addSurvey: async (_, { name, status }) => {
