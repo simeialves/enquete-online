@@ -7,6 +7,7 @@ custom:
   tableName: "users-table-${sls:stage}"
   tableName2: "survey-table-${sls:stage}"
   tableName3: "survey-items-table-${sls:stage}"
+  tableName4: "poll-items-table-${sls:stage}"
 
 provider:
   name: aws
@@ -26,10 +27,12 @@ provider:
             - Fn::GetAtt: [UsersTable, Arn]
             - Fn::GetAtt: [SurveyTable, Arn]
             - Fn::GetAtt: [SurveyItemsTable, Arn]
+            - Fn::GetAtt: [PollItemsTable, Arn]
   environment:
     USERS_TABLE: ${self:custom.tableName}
     SURVEY_TABLE: ${self:custom.tableName2}
     SURVEY_ITEMS_TABLE: ${self:custom.tableName3}
+    POLL_ITEMS_TABLE: ${self:custom.tableName4}
 
 functions:
   api:
@@ -72,3 +75,14 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableName3}
+    PollItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: pollItemId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pollItemId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName4}
