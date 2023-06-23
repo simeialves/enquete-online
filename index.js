@@ -3,6 +3,7 @@ const {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  UpdateCommand,
   DeleteCommand,
   ScanCommand,
 } = require("@aws-sdk/lib-dynamodb");
@@ -99,28 +100,37 @@ app.get("/survey/:surveyId", async function (req, res) {
 });
 
 app.put("/survey/:surveyId", async function (req, res) {
+  const { surveyId } = req.params;
+  const { name, status } = req.body;
+
+  if (typeof name !== "string") {
+    res.status(400).json({ error: '"name" must be a string' });
+    return;
+  } else if (typeof status !== "string") {
+    res.status(400).json({ error: '"status" must be a string' });
+    return;
+  }
+
   const params = {
     TableName: SURVEY_TABLE,
     Key: {
-      surveyId: req.params.surveyId,
+      surveyId: surveyId,
     },
-    UpdateExpression: "SET name = :name, status = :status",
+    UpdateExpression: "SET #name = :name, #status = :status",
+    ExpressionAttributeNames: {
+      "#name": "name",
+      "#status": "status",
+    },
     ExpressionAttributeValues: {
-      ":name": req.body.name,
-      ":status": req.body.status,
+      ":name": name,
+      ":status": status,
     },
+    ReturnValues: "ALL_NEW",
   };
 
   try {
-    const { Item } = await dynamoDbClient.send(new GetCommand(params));
-    if (Item) {
-      await dynamoDbClient.send(new PutCommand(params));
-      res.status(200).json({ message: "Survey updated successfully" });
-    } else {
-      res
-        .status(404)
-        .json({ error: 'Could not find survey with provided "surveyId"' });
-    }
+    const result = await dynamoDbClient.send(new UpdateCommand(params));
+    res.json(result.Attributes);
   } catch (error) {
     console.log(error);
     res
@@ -182,7 +192,7 @@ app.post("/survey-items", async function (req, res) {
 
   try {
     await dynamoDbClient.send(new PutCommand(params));
-    res.json({ surveyItemId, surveyId, description });
+    res.json({ surveyItemId, surveyId, description, votes });
   } catch (error) {
     console.log(error);
     res
@@ -223,8 +233,34 @@ app.get("/survey-items/:surveyItemId", async function (req, res) {
   try {
     const { Item } = await dynamoDbClient.send(new GetCommand(params));
     if (Item) {
-      const { surveyItemId, surveyId, description } = Item;
-      res.json({ surveyItemId, surveyId, description });
+      const { surveyItemId, surveyId, description, votes } = Item;
+      res.json({ surveyItemId, surveyId, description, votes });
+    } else {
+      res.status(404).json({
+        error: 'Could not find survey-items with provided "surveyItemId"',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ error: "Could not retreive survey", message: error.message });
+  }
+});
+
+app.get("/survey-items-by-surveyId/:surveyItemId", async function (req, res) {
+  const params = {
+    TableName: SURVEY_ITEMS_TABLE,
+    Key: {
+      surveyItemId: req.params.surveyItemId,
+    },
+  };
+
+  try {
+    const { Item } = await dynamoDbClient.send(new GetCommand(params));
+    if (Item) {
+      const { surveyItemId, surveyId, description, votes } = Item;
+      res.json({ surveyItemId, surveyId, description, votes });
     } else {
       res.status(404).json({
         error: 'Could not find survey-items with provided "surveyItemId"',
@@ -239,40 +275,53 @@ app.get("/survey-items/:surveyItemId", async function (req, res) {
 });
 
 app.put("/survey-items/:surveyItemId", async function (req, res) {
+  const { surveyItemId } = req.params;
+  const { surveyId, description, votes } = req.body;
+
+  if (typeof surveyId !== "string") {
+    res.status(400).json({ error: '"surveyId" must be a string' });
+  } else if (typeof description !== "string") {
+    res.status(400).json({ error: '"description" must be a string' });
+  } else if (typeof votes !== "string") {
+    res.status(400).json({ error: '"votes" must be a string' });
+  }
+
   const params = {
     TableName: SURVEY_ITEMS_TABLE,
     Key: {
-      surveyItemId: req.params.surveyItemId,
+      surveyItemId: surveyItemId,
     },
-    UpdateExpression: "SET description = :description, votes = :votes",
+    UpdateExpression:
+      "SET #surveyId = :surveyId, #description = :description, #votes = :votes",
+    ExpressionAttributeNames: {
+      "#surveyId": "surveyId",
+      "#description": "description",
+      "#votes": "votes",
+    },
     ExpressionAttributeValues: {
-      ":description": req.body.description,
-      ":votes": req.body.votes,
+      ":surveyId": surveyId,
+      ":description": description,
+      ":votes": votes,
     },
+    ReturnValues: "ALL_NEW",
   };
 
   try {
-    const { Item } = await dynamoDbClient.send(new PutCommand(params));
-    if (Item) {
-      res.status(200).json({ message: "Survey updated successfully" });
-    } else {
-      res
-        .status(404)
-        .json({ error: 'Could not find survey with provided "surveyId"' });
-    }
+    const result = await dynamoDbClient.send(new UpdateCommand(params));
+    res.json(result.Attributes);
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json({ error: "Could not update survey", message: error.message });
+      .json({ error: "Could not update surveyItems", message: error.message });
   }
 });
 
 app.delete("/survey-items/:surveyItemId", async function (req, res) {
   const params = {
-    TableName: SURVEY_TABLE,
+    TableName: SURVEY_ITEMS_TABLE,
     Key: {
-      surveyId: req.params.surveyId,
+      surveyItemId: req.params.surveyItemId,
     },
   };
 
@@ -280,17 +329,17 @@ app.delete("/survey-items/:surveyItemId", async function (req, res) {
     const { Item } = await dynamoDbClient.send(new GetCommand(params));
     if (Item) {
       await dynamoDbClient.send(new DeleteCommand(params));
-      res.status(200).json({ message: "SurveyItemId deleted successfully" });
+      res.status(200).json({ message: "SurveyItems deleted successfully" });
     } else {
       res
         .status(404)
-        .json({ error: 'Could not find survey with provided "surveyId"' });
+        .json({ error: 'Could not find survey with provided "surveyItemId"' });
     }
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json({ error: "Could not delete survey", message: error.message });
+      .json({ error: "Could not delete surveyItem", message: error.message });
   }
 });
 //#endregion
