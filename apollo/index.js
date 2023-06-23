@@ -12,6 +12,18 @@ async function getAllSurvey() {
     });
 }
 
+async function getSurveyById(surveyId) {
+  return await axios
+    .get(
+      `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey/${surveyId}`
+    )
+    .then((response) => response.data)
+    .catch((error) => {
+      console.log("Erro ao buscar as enquetes:", error);
+      return [];
+    });
+}
+
 async function getAllSurveyItems() {
   return await axios
     .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items")
@@ -44,7 +56,7 @@ const typeDefs = `#graphql
       surveyItemId: String
       description: String
       surveyId: String
-      vote: String
+      votes: String
     }
 
     type PollItems{
@@ -58,17 +70,22 @@ const typeDefs = `#graphql
       survey: [Survey]
       survey_items: [SurveyItems]
       poll_items: [PollItems]
+
+      surveyById: [Survey]
     }
 
     type Mutation {
         addSurvey(surveyId: String, name: String, status: String): Survey
         deleteSurvey(surveyId: String): Survey
+        updateSurvey(surveyId: String, name: String, status: String): Survey
 
-        addSurveyItems(surveyItemId: String, description: String, surveyId: String, vote: String): SurveyItems
+        addSurveyItems(surveyItemId: String, description: String, surveyId: String, votes: String): SurveyItems
         deleteSurveyItems(surveyItemId: String): SurveyItems
+        updateSurveyItems(surveyItemId: String, description: String, surveyId: String, votes: String): SurveyItems
 
         addPollItems(pollItemId: String, surveyItemId: String, description: String, surveyId: String): PollItems
-        deletePollItems(pollItemId: String): PollItems                
+        deletePollItems(pollItemId: String): PollItems
+        updatePollItems(pollItemId: String, surveyItemId: String, description: String, surveyId: String): PollItems
     }
     `;
 
@@ -95,6 +112,21 @@ const resolvers = {
       }
     },
 
+    updateSurvey: async (_, { name, status, surveyId }) => {
+      try {
+        const response = await axios.put(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey/${surveyId}`,
+          {
+            name: name,
+            status: status,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao atualizar a enquete");
+      }
+    },
+
     deleteSurvey: async (_, { surveyId }) => {
       try {
         const response = await axios.delete(
@@ -104,6 +136,98 @@ const resolvers = {
         return response.data;
       } catch (error) {
         throw new Error("Falha ao excluir a enquete");
+      }
+    },
+
+    addSurveyItems: async (_, { description, surveyId, votes }) => {
+      try {
+        const response = await axios.post(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items`,
+          {
+            description: description,
+            surveyId: surveyId,
+            votes: votes,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao adicionar a enquete");
+      }
+    },
+
+    updateSurveyItems: async (
+      _,
+      { description, surveyId, votes, surveyItemId }
+    ) => {
+      try {
+        const response = await axios.put(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items/${surveyItemId}`,
+          {
+            description: description,
+            surveyId: surveyId,
+            votes: votes,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao atualizar a enquete");
+      }
+    },
+
+    deleteSurveyItems: async (_, { surveyItemId }) => {
+      try {
+        const response = await axios.delete(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items/${surveyItemId}`
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao excluir o item da enquete");
+      }
+    },
+
+    addPollItems: async (_, { surveyItemId, description, surveyId }) => {
+      try {
+        const response = await axios.post(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items`,
+          {
+            surveyItemId: surveyItemId,
+            description: description,
+            surveyId: surveyId,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao adicionar uma votação para a enquete");
+      }
+    },
+
+    updatePollItems: async (
+      _,
+      { surveyItemId, description, surveyId, pollItemId }
+    ) => {
+      try {
+        const response = await axios.put(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items/${pollItemId}`,
+          {
+            surveyItemId: surveyItemId,
+            description: description,
+            surveyId: surveyId,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao atualizar a votação da enquete");
+      }
+    },
+
+    deletePollItems: async (_, { pollItemId }) => {
+      try {
+        const response = await axios.delete(
+          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items/${pollItemId}`
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("Falha ao excluir a votação da enquete");
       }
     },
   },
