@@ -248,29 +248,36 @@ app.get("/survey-items/:surveyItemId", async function (req, res) {
   }
 });
 
-app.get("/survey-items-by-surveyId/:surveyItemId", async function (req, res) {
+app.get("/survey-items/survey/:surveyId", async function (req, res) {
   const params = {
     TableName: SURVEY_ITEMS_TABLE,
-    Key: {
-      surveyItemId: req.params.surveyItemId,
+    FilterExpression: "surveyId = :surveyIdValue",
+    ExpressionAttributeValues: {
+      ":surveyIdValue": req.params.surveyId,
     },
   };
 
   try {
-    const { Item } = await dynamoDbClient.send(new GetCommand(params));
-    if (Item) {
-      const { surveyItemId, surveyId, description, votes } = Item;
-      res.json({ surveyItemId, surveyId, description, votes });
+    const { Items } = await dynamoDbClient.send(new ScanCommand(params));
+    if (Items && Items.length > 0) {
+      const surveyItems = Items.map((item) => {
+        const { surveyItemId, surveyId, description, votes } = item;
+        return { surveyItemId, surveyId, description, votes };
+      });
+      res.json(surveyItems);
     } else {
       res.status(404).json({
-        error: 'Could not find survey-items with provided "surveyItemId"',
+        error: 'Could not find survey-items with provided "surveyId"',
       });
     }
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json({ error: "Could not retreive survey", message: error.message });
+      .json({
+        error: "Could not retrieve survey items",
+        message: error.message,
+      });
   }
 });
 
