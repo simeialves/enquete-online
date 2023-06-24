@@ -91,8 +91,6 @@ const typeDefs = `#graphql
     type PollItems{
       pollItemId: String
       surveyItemId: String
-      description: String
-      surveyId: String
     }
 
     type Query{
@@ -112,7 +110,7 @@ const typeDefs = `#graphql
         deleteSurveyItems(surveyItemId: String): SurveyItems
         updateSurveyItems(surveyItemId: String, description: String, surveyId: String, votes: String): SurveyItems
 
-        addPollItems(pollItemId: String, surveyItemId: String, description: String, surveyId: String): PollItems
+        addPollItems(pollItemId: String, surveyItemId: String): PollItems
         deletePollItems(pollItemId: String): PollItems
         updatePollItems(pollItemId: String, surveyItemId: String, description: String, surveyId: String): PollItems
     }
@@ -245,22 +243,30 @@ const resolvers = {
       }
     },
 
-    addPollItems: async (_, { surveyItemId, description, surveyId }) => {
+    addPollItems: async (_, { surveyItemId }) => {
       try {
         const response = await axios.post(
           `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items`,
           {
             surveyItemId: surveyItemId,
-            description: description,
-            surveyId: surveyId,
           }
         );
 
-        const msg = response.data.description;
+        const result = await axios
+          .get(
+            `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items/${surveyItemId}`
+          )
+          .then((response) => response.data)
+          .catch((error) => {
+            console.log("Erro ao buscar as enquetes:", error);
+            return [];
+          });
+
+        const description = result.description;
 
         axios
           .post(`http://localhost:3000/add-poll-item`, {
-            msg: msg,
+            msg: description,
           })
           .then(() => {
             console.log(msg);

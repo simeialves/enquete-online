@@ -352,36 +352,26 @@ app.delete("/survey-items/:surveyItemId", async function (req, res) {
 
 //#region POLL-ITEMS
 app.post("/poll-items", async function (req, res) {
-  const { surveyId, surveyItemId, description } = req.body;
-  if (typeof surveyId !== "string") {
-    res.status(400).json({ error: '"surveyId" must be a string' });
-  } else if (typeof surveyItemId !== "string") {
+  const { surveyItemId } = req.body;
+  if (typeof surveyItemId !== "string") {
     res.status(400).json({ error: '"surveyItemId" must be a string' });
-  } else if (typeof description !== "string") {
-    res.status(400).json({ error: '"description" must be a string' });
   }
 
   const pollItemId = uuidv4();
-  //const dateHour = getDateHourNow();
 
   const params = {
     TableName: POLL_ITEMS_TABLE,
     Item: {
       pollItemId: pollItemId,
-      surveyId: surveyId,
       surveyItemId: surveyItemId,
-      description: description,
     },
   };
 
   try {
     await dynamoDbClient.send(new PutCommand(params));
     res.json({
-      surveyItemId: pollItemId,
-      surveyId,
+      pollItemId,
       surveyItemId,
-      description,
-      //dateHour,
     });
   } catch (error) {
     console.log(error);
