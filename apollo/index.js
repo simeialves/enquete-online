@@ -276,7 +276,7 @@ const resolvers = {
 
         let description = result.description;
 
-        description += " - Quantidade parcial: " + count;
+        description += " - Quantidade parciala: " + count;
 
         axios
           .post(`http://localhost:3000/add-poll-item`, {
