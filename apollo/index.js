@@ -282,9 +282,7 @@ const resolvers = {
           .post(`http://localhost:3000/add-poll-item`, {
             msg: description,
           })
-          .then(() => {
-            console.log(description);
-          })
+          .then(() => {})
           .catch((erro) => {
             console.log("Error to send post request:", erro);
           });
