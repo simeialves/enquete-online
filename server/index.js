@@ -428,6 +428,37 @@ app.get("/poll-items/:pollItemId", async function (req, res) {
   }
 });
 
+app.get("/poll-items/surveyItems/:surveyItemId", async function (req, res) {
+  const params = {
+    TableName: POLL_ITEMS_TABLE,
+    FilterExpression: "surveyItemId = :surveyItemIdValue",
+    ExpressionAttributeValues: {
+      ":surveyItemIdValue": req.params.surveyItemId,
+    },
+  };
+
+  try {
+    const { Items } = await dynamoDbClient.send(new ScanCommand(params));
+    if (Items && Items.length > 0) {
+      const surveyItems = Items.map((item) => {
+        const { pollItemId, surveyItemId } = item;
+        return { pollItemId, surveyItemId };
+      });
+      res.json(surveyItems);
+    } else {
+      res.status(404).json({
+        error: 'Could not find poll-items with provided "surveyItemId"',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: "Could not retrieve poll items",
+      message: error.message,
+    });
+  }
+});
+
 app.put("/poll-items/:pollItemId", async function (req, res) {
   const { pollItemId } = req.params;
   const { surveyId, surveyItemId, description } = req.body;

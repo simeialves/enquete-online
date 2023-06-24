@@ -262,14 +262,28 @@ const resolvers = {
             return [];
           });
 
-        const description = result.description;
+        const pollItems = await axios
+          .get(
+            `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items/surveyItems/${surveyItemId}`
+          )
+          .then((response) => response.data)
+          .catch((error) => {
+            console.log("Erro ao buscar poll items:", error);
+            return [];
+          });
+
+        const count = pollItems.length;
+
+        let description = result.description;
+
+        description += " - Quantidade parcial: " + count;
 
         axios
           .post(`http://localhost:3000/add-poll-item`, {
             msg: description,
           })
           .then(() => {
-            console.log(msg);
+            console.log(description);
           })
           .catch((erro) => {
             console.log("Error to send post request:", erro);
