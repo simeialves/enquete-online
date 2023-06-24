@@ -11,7 +11,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.post("/newSurvey", (req, res) => {
+app.post("/add-survey", (req, res) => {
   const { msg } = req.body;
 
   io.emit("chat message", "Enquete Criada: " + msg);
@@ -19,10 +19,18 @@ app.post("/newSurvey", (req, res) => {
   res.status(200);
 });
 
-app.post("/addSurveyItem", (req, res) => {
+app.post("/add-survey-item", (req, res) => {
   const { msg } = req.body;
 
   io.emit("chat message", "Opção: " + msg);
+
+  res.json("teste");
+});
+
+app.post("/add-poll-item", (req, res) => {
+  const { msg } = req.body;
+
+  io.emit("chat message", "Novo voto para: " + msg);
 
   res.json("teste");
 });

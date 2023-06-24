@@ -139,18 +139,18 @@ const resolvers = {
           }
         );
 
-        // const msg = response.name;
+        const msg = response.data.name;
 
-        // await axios
-        //   .post(`http://localhost:3000/newSurvey`, {
-        //     msg: msg,
-        //   })
-        //   .then(() => {
-        //     console.log(msg);
-        //   })
-        //   .catch((erro) => {
-        //     console.log("Error to send post request:", erro);
-        //   });
+        axios
+          .post(`http://localhost:3000/add-survey`, {
+            msg: msg,
+          })
+          .then(() => {
+            console.log(msg);
+          })
+          .catch((erro) => {
+            console.log("Error to send post request:", erro);
+          });
 
         return response.data;
       } catch (error) {
@@ -195,6 +195,20 @@ const resolvers = {
             votes: votes,
           }
         );
+
+        const msg = response.data.description;
+
+        axios
+          .post(`http://localhost:3000/add-survey-item`, {
+            msg: msg,
+          })
+          .then(() => {
+            console.log(msg);
+          })
+          .catch((erro) => {
+            console.log("Error to send post request:", erro);
+          });
+
         return response.data;
       } catch (error) {
         throw new Error("Falha ao adicionar a enquete");
@@ -241,6 +255,20 @@ const resolvers = {
             surveyId: surveyId,
           }
         );
+
+        const msg = response.data.description;
+
+        axios
+          .post(`http://localhost:3000/add-poll-item`, {
+            msg: msg,
+          })
+          .then(() => {
+            console.log(msg);
+          })
+          .catch((erro) => {
+            console.log("Error to send post request:", erro);
+          });
+
         return response.data;
       } catch (error) {
         throw new Error("Falha ao adicionar uma votação para a enquete");
