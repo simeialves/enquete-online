@@ -3,13 +3,20 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import axios from "axios";
 
 async function getAllSurvey() {
-  return await axios
+  const response = await axios
     .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey")
-    .then((response) => response.data)
+    .then((response) => {
+      response.data;
+
+      axios.post(`https://localhost:3000/`, {
+        response,
+      });
+    })
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
       return [];
     });
+  return response;
 }
 
 async function getSurveyById(surveyId) {
