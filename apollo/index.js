@@ -5,13 +5,7 @@ import axios from "axios";
 async function getAllSurvey() {
   const response = await axios
     .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey")
-    .then((response) => {
-      response.data;
-
-      axios.post(`https://localhost:3000/`, {
-        response,
-      });
-    })
+    .then((response) => response.data)
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
       return [];
@@ -20,7 +14,7 @@ async function getAllSurvey() {
 }
 
 async function getSurveyById(surveyId) {
-  return await axios
+  const response = await axios
     .get(
       `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey/${surveyId}`
     )
@@ -29,6 +23,7 @@ async function getSurveyById(surveyId) {
       console.log("Erro ao buscar as enquetes:", error);
       return [];
     });
+  return response;
 }
 
 async function getAllSurveyItems() {
@@ -42,7 +37,7 @@ async function getAllSurveyItems() {
 }
 
 async function getSurveyItemsBySurveyId(surveyId) {
-  return await axios
+  const response = await axios
     .get(
       `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-Items/survey/${surveyId}`
     )
@@ -51,6 +46,21 @@ async function getSurveyItemsBySurveyId(surveyId) {
       console.log("Erro ao buscar as enquetes:", error);
       return [];
     });
+
+  const msg = response.description;
+
+  await axios
+    .post(`http://localhost:3000/addSurveyItem`, {
+      msg: msg,
+    })
+    .then(() => {
+      console.log(msg);
+    })
+    .catch((erro) => {
+      console.log("Error to send post request:", erro);
+    });
+
+  return response;
 }
 
 async function getAllPollItems() {
@@ -128,6 +138,19 @@ const resolvers = {
             status: status,
           }
         );
+
+        // const msg = response.name;
+
+        // await axios
+        //   .post(`http://localhost:3000/newSurvey`, {
+        //     msg: msg,
+        //   })
+        //   .then(() => {
+        //     console.log(msg);
+        //   })
+        //   .catch((erro) => {
+        //     console.log("Error to send post request:", erro);
+        //   });
 
         return response.data;
       } catch (error) {
