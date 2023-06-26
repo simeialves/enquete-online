@@ -237,8 +237,6 @@ const resolvers = {
             resultado += "\r\n" + resultadoItem;
           }
 
-          console.log(resultado);
-
           try {
             await axios.post(`${URL_SOCKET_IO}/update-survey`, {
               msg: resultado,
