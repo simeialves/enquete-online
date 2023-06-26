@@ -2,9 +2,13 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import axios from "axios";
 
+const URL_SERVERLESS = "https://kofgvsu30l.execute-api.us-east-1.amazonaws.com";
+//const URL_SOCKET_IO = "http://localhost:3000";
+const URL_SOCKET_IO = "http://enquete-online.simeialves.com.br";
+
 async function getAllSurvey() {
   const response = await axios
-    .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey")
+    .get(`${URL_SERVERLESS}/survey`)
     .then((response) => response.data)
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
@@ -15,9 +19,7 @@ async function getAllSurvey() {
 
 async function getSurveyById(surveyId) {
   const response = await axios
-    .get(
-      `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey/${surveyId}`
-    )
+    .get(`${URL_SERVERLESS}/survey/${surveyId}`)
     .then((response) => response.data)
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
@@ -28,7 +30,7 @@ async function getSurveyById(surveyId) {
 
 async function getAllSurveyItems() {
   return await axios
-    .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items")
+    .get(`${URL_SERVERLESS}/survey-items`)
     .then((response) => response.data)
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
@@ -38,26 +40,11 @@ async function getAllSurveyItems() {
 
 async function getSurveyItemsBySurveyId(surveyId) {
   const response = await axios
-    .get(
-      `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-Items/survey/${surveyId}`
-    )
+    .get(`${URL_SERVERLESS}/survey-Items/survey/${surveyId}`)
     .then((response) => response.data)
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
       return [];
-    });
-
-  const msg = response.description;
-
-  await axios
-    .post(`http://localhost:3000/addSurveyItem`, {
-      msg: msg,
-    })
-    .then(() => {
-      console.log(msg);
-    })
-    .catch((erro) => {
-      console.log("Error to send post request:", erro);
     });
 
   return response;
@@ -65,12 +52,24 @@ async function getSurveyItemsBySurveyId(surveyId) {
 
 async function getAllPollItems() {
   return await axios
-    .get("https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items")
+    .get(`${URL_SERVERLESS}/poll-items`)
     .then((response) => response.data)
     .catch((error) => {
       console.log("Erro ao buscar as enquetes:", error);
       return [];
     });
+}
+
+async function getPollItemsBySurveyItemId(surveyItemId) {
+  const response = await axios
+    .get(`${URL_SERVERLESS}/poll-items/surveyItems/${surveyItemId}`)
+    .then((response) => response.data)
+    .catch((error) => {
+      console.log("Erro ao buscar as enquetes:", error);
+      return [];
+    });
+
+  return response.length;
 }
 
 const typeDefs = `#graphql
@@ -129,18 +128,15 @@ const resolvers = {
   Mutation: {
     addSurvey: async (_, { name, status }) => {
       try {
-        const response = await axios.post(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey`,
-          {
-            name: name,
-            status: status,
-          }
-        );
+        const response = await axios.post(`${URL_SERVERLESS}/survey`, {
+          name: name,
+          status: status,
+        });
 
         const msg = response.data.name;
 
         axios
-          .post(`http://localhost:3000/add-survey`, {
+          .post(`${URL_SOCKET_IO}/add-survey`, {
             msg: msg,
           })
           .then(() => {
@@ -156,15 +152,102 @@ const resolvers = {
       }
     },
 
+    // updateSurvey: async (_, { name, status, surveyId }) => {
+    //   try {
+    //     const response = await axios.put(
+    //       `${URL_SERVERLESS}/survey/${surveyId}`,
+    //       {
+    //         name: name,
+    //         status: status,
+    //       }
+    //     );
+
+    //     const msg = response.data.name;
+
+    //     if (status == 1) {
+    //       const response = await getSurveyItemsBySurveyId(surveyId);
+
+    //       var resultado = "";
+
+    //       response
+    //         .forEach(async (item) => {
+    //           var resultadoItem = "";
+    //           const qtd = await getPollItemsBySurveyItemId(item.surveyItemId);
+
+    //           resultadoItem +=
+    //             "Opção: " +
+    //             item.description +
+    //             " - Qtd. de votos: " +
+    //             qtd +
+    //             ". ";
+    //           resultado += resultadoItem;
+    //           console.log(resultado);
+    //         })
+    //         .then(() => {
+    //           console.log("entrou");
+    //           axios
+    //             .post(`${URL_SOCKET_IO}/update-survey`, {
+    //               msg: resultado,
+    //             })
+    //             .then((result) => {
+    //               console.log("teste");
+    //             })
+    //             .catch((erro) => {
+    //               console.log("Error to send post request:", erro);
+    //             });
+    //         })
+    //         .catch((error) => {
+    //           console.error(error);
+    //         });
+    //     }
+
+    //     return response.data;
+    //   } catch (error) {
+    //     throw new Error("Falha ao atualizar a enquete");
+    //   }
+    // },
+
     updateSurvey: async (_, { name, status, surveyId }) => {
       try {
         const response = await axios.put(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey/${surveyId}`,
+          `${URL_SERVERLESS}/survey/${surveyId}`,
           {
             name: name,
             status: status,
           }
         );
+
+        const nameSurvey = response.data.name;
+
+        if (status == 1) {
+          const surveyItems = await getSurveyItemsBySurveyId(surveyId);
+
+          var resultado = nameSurvey;
+
+          for (const item of surveyItems) {
+            var resultadoItem = "";
+            const qtd = await getPollItemsBySurveyItemId(item.surveyItemId);
+
+            resultadoItem +=
+              "\r\nOpção: " +
+              item.description +
+              " - Qtd. de votos: " +
+              qtd +
+              ". ";
+            resultado += "\r\n" + resultadoItem;
+          }
+
+          console.log(resultado);
+
+          try {
+            await axios.post(`${URL_SOCKET_IO}/update-survey`, {
+              msg: resultado,
+            });
+          } catch (error) {
+            console.log("Error to send post request:", error);
+          }
+        }
+
         return response.data;
       } catch (error) {
         throw new Error("Falha ao atualizar a enquete");
@@ -174,7 +257,7 @@ const resolvers = {
     deleteSurvey: async (_, { surveyId }) => {
       try {
         const response = await axios.delete(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey/${surveyId}`
+          `${URL_SERVERLESS}/survey/${surveyId}`
         );
 
         return response.data;
@@ -185,19 +268,16 @@ const resolvers = {
 
     addSurveyItems: async (_, { description, surveyId, votes }) => {
       try {
-        const response = await axios.post(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items`,
-          {
-            description: description,
-            surveyId: surveyId,
-            votes: votes,
-          }
-        );
+        const response = await axios.post(`${URL_SERVERLESS}/survey-items`, {
+          description: description,
+          surveyId: surveyId,
+          votes: votes,
+        });
 
         const msg = response.data.description;
 
         axios
-          .post(`http://localhost:3000/add-survey-item`, {
+          .post(`${URL_SOCKET_IO}/add-survey-item`, {
             msg: msg,
           })
           .then(() => {
@@ -219,7 +299,7 @@ const resolvers = {
     ) => {
       try {
         const response = await axios.put(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items/${surveyItemId}`,
+          `${URL_SERVERLESS}/survey-items/${surveyItemId}`,
           {
             description: description,
             surveyId: surveyId,
@@ -235,7 +315,7 @@ const resolvers = {
     deleteSurveyItems: async (_, { surveyItemId }) => {
       try {
         const response = await axios.delete(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items/${surveyItemId}`
+          `${URL_SERVERLESS}/survey-items/${surveyItemId}`
         );
         return response.data;
       } catch (error) {
@@ -245,17 +325,12 @@ const resolvers = {
 
     addPollItems: async (_, { surveyItemId }) => {
       try {
-        const response = await axios.post(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items`,
-          {
-            surveyItemId: surveyItemId,
-          }
-        );
+        const response = await axios.post(`${URL_SERVERLESS}/poll-items`, {
+          surveyItemId: surveyItemId,
+        });
 
         const result = await axios
-          .get(
-            `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/survey-items/${surveyItemId}`
-          )
+          .get(`${URL_SERVERLESS}/survey-items/${surveyItemId}`)
           .then((response) => response.data)
           .catch((error) => {
             console.log("Erro ao buscar as enquetes:", error);
@@ -263,9 +338,7 @@ const resolvers = {
           });
 
         const pollItems = await axios
-          .get(
-            `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items/surveyItems/${surveyItemId}`
-          )
+          .get(`${URL_SERVERLESS}/poll-items/surveyItems/${surveyItemId}`)
           .then((response) => response.data)
           .catch((error) => {
             console.log("Erro ao buscar poll items:", error);
@@ -279,7 +352,7 @@ const resolvers = {
         description += " - Quantidade parcial: " + count;
 
         axios
-          .post(`http://localhost:3000/add-poll-item`, {
+          .post(`${URL_SOCKET_IO}/add-poll-item`, {
             msg: description,
           })
           .then(() => {})
@@ -299,7 +372,7 @@ const resolvers = {
     ) => {
       try {
         const response = await axios.put(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items/${pollItemId}`,
+          `${URL_SERVERLESS}/poll-items/${pollItemId}`,
           {
             surveyItemId: surveyItemId,
             description: description,
@@ -315,7 +388,7 @@ const resolvers = {
     deletePollItems: async (_, { pollItemId }) => {
       try {
         const response = await axios.delete(
-          `https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/poll-items/${pollItemId}`
+          `${URL_SERVERLESS}/poll-items/${pollItemId}`
         );
         return response.data;
       } catch (error) {

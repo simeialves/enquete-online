@@ -19,6 +19,14 @@ app.post("/add-survey", (req, res) => {
   res.status(200);
 });
 
+app.post("/update-survey", (req, res) => {
+  const { msg } = req.body;
+
+  io.emit("chat message", "Votação Encerrada: " + msg);
+
+  res.json("teste");
+});
+
 app.post("/add-survey-item", (req, res) => {
   const { msg } = req.body;
 
