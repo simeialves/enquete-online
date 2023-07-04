@@ -39,3 +39,5 @@ O GraphQL envia uma solicitação HTTP para o backend para realizando a criaçã
 O WebSocket fica responsável por "escutar" as rotas já mapeadas e enviar para o frontend uma notificação da ação realizada.
 
 ## Diagrama
+
+![image](https://github.com/simeialves/enquete-online/assets/55514588/52532865-5176-45bf-a6f0-fb80908a894b)
