@@ -11,10 +11,9 @@ authorName: 'Serverless, inc.'
 authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 -->
 
-# Serverless Framework Node Express API on AWS
+# Enquete-Online
 
-This template demonstrates how to develop and deploy a simple Node Express API service, backed by DynamoDB database, running on AWS Lambda using the traditional Serverless Framework.
-
+O projeto "enquete-online" foi desenvolvido com o objeto de aprendizado das ferramentas Serveless, GraphQl e WebSockets. Esse projeto utilizou também o NodeJs Express API e banco de dados DynamoDB. Ele foi projetado para ser executado na AWS Lambda.
 
 ## Anatomy of the template
 
