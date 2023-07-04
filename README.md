@@ -23,17 +23,19 @@ A arquitetura do sistema "Enquete-Online" é composta pelos seguintes componente
 
 ### Frontend:
 
+Responsável por notificar o usuário ao criar uma nova enquete, realizar votações e encerrar a enquete.
+
 ### Backend:
+
+Responsável por gerenciar a lógica das enquetes. É desenvolvido em Node.js e utiliza o framework Express para ligar com as rotas e solicitações HTTP. Utiliza-se também o Apollo para realizar as requisições entre o GraphQL e o Node.js.
 
 ### Banco de Dados:
 
-### Camada de Serviços:
-
-### Integrações Externas:
+Armazena os dados do sistema. Utilizamos o banco de dados DynamDB para garantir a consitência e integridade dos dados.
 
 ## Fluxo de Dados
-
-
-## Escalabilidade e Desempenho
+O fluxo de dados no sistema "Enquete-Online" é o seguinte:
+O GraphQL envia uma solicitação HTTP para o backend para realizando a criação e finalização de enquetes e adição de votos.
+O WebSocket fica responsável por "escutar" as rotas já mapeadas e enviar para o frontend uma notificação da ação realizada.
 
 ## Diagrama
