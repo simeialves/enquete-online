@@ -1,6 +1,6 @@
 <!--
-title: 'Serverless Framework Node Express API service backed by DynamoDB on AWS'
-description: 'This template demonstrates how to develop and deploy a simple Node Express API service backed by DynamoDB running on AWS Lambda using the traditional Serverless Framework.'
+title: 'Enquete-Online'
+description: 'O projeto "enquete-online" foi desenvolvido com o objeto de aprendizado das ferramentas Serveless, GraphQl e WebSockets. Esse projeto utilizou também o NodeJs Express API e banco de dados DynamoDB. Ele foi projetado para ser executado na AWS Lambda.'
 layout: Doc
 framework: v3
 platform: AWS
