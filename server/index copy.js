@@ -1,8 +1,8 @@
 const express = require("express");
 const serverless = require("serverless-http");
 
-const SurveyController = require("./controllers/SurveyController");
-const SurveyItemsController = require("./controllers/SurveyItemsController");
+const SurverController = require("./controllers/SurverController");
+const SurverItemsController = require("./controllers/SurverItemsController");
 const PollItemsController = require("./controllers/PollItemsController");
 
 const app = express();
@@ -21,11 +21,11 @@ app.use(express.json());
  *           description: ID da enquete
  *         name:
  *           type: string
- *           description: Nome da enquete
+ *           name: Nome da enquete
  *         status:
  *           type: string
  *           description: Status da enquete
- *     SurveyItems:
+ *      SurveyItems:
  *       type: object
  *       properties:
  *         SurveyItemId:
@@ -36,11 +36,11 @@ app.use(express.json());
  *           description: ID da enquete
  *         description:
  *           type: string
- *           description: Descrição do item da enquete
+ *           name: Descrição do item da enquete
  *         Votes:
  *           type: string
  *           description: Quantidade de Votos
- *     PollItems:
+ *      PollItems:
  *       type: object
  *       properties:
  *         PollItemId:
@@ -77,7 +77,7 @@ app.use(express.json());
  *       200:
  *         description: Lista de itens das enquetes.
  *   post:
- *     summary: Cria um novo item da enquete.
+ *     summary: Cria uma novo item da enquete.
  *     requestBody:
  *       required: true
  *       content:
@@ -89,7 +89,7 @@ app.use(express.json());
  *         description: Item criado com sucesso.
  * /poll-items:
  *   get:
- *     summary: Retorna todos os votos.
+ *     summary: Retorna todas os votos.
  *     responses:
  *       200:
  *         description: Lista de votos.
@@ -103,7 +103,7 @@ app.use(express.json());
  *             $ref: '#/components/schemas/PollItems'
  *     responses:
  *       200:
- *         description: Voto criado com sucesso.
+ *         description: Enquete criada com sucesso.
  */
 
 /**
@@ -113,7 +113,7 @@ app.use(express.json());
  *     summary: Atualiza uma enquete existente.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: SurveyId
  *         required: true
  *         description: ID da enquete a ser atualizada.
  *         schema:
@@ -131,7 +131,7 @@ app.use(express.json());
  *     summary: Remove uma enquete existente.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: SurveyId
  *         required: true
  *         description: ID da enquete a ser removida.
  *         schema:
@@ -141,10 +141,10 @@ app.use(express.json());
  *         description: Enquete removida com sucesso.
  * /survey-items/{id}:
  *   put:
- *     summary: Atualiza um item da enquete existente.
+ *     summary: Atualiza uma item da enquete existente.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: SurveyItemId
  *         required: true
  *         description: ID do item da enquete a ser atualizada.
  *         schema:
@@ -157,27 +157,27 @@ app.use(express.json());
  *             $ref: '#/components/schemas/SurveyItems'
  *     responses:
  *       200:
- *         description: Item da enquete atualizado com sucesso.
+ *         description: Item da enquete atualizada com sucesso.
  *   delete:
  *     summary: Remove um item da enquete existente.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: SurveyItemId
  *         required: true
  *         description: ID do item da enquete a ser removida.
  *         schema:
  *           type: string
  *     responses:
  *       204:
- *         description: Item da enquete removido com sucesso.
+ *         description: Item da enquete removida com sucesso.
  * /poll-items/{id}:
  *   put:
  *     summary: Atualiza um voto existente.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: PollItemId
  *         required: true
- *         description: ID do voto da enquete a ser atualizado.
+ *         description: ID do voto da enquete a ser atualizada.
  *         schema:
  *           type: string
  *     requestBody:
@@ -193,9 +193,9 @@ app.use(express.json());
  *     summary: Remove um voto da enquete existente.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: PollItemId
  *         required: true
- *         description: ID do voto da enquete a ser removido.
+ *         description: ID do voto da enquete a ser removida.
  *         schema:
  *           type: string
  *     responses:
@@ -204,35 +204,41 @@ app.use(express.json());
  */
 
 //#region SURVEY
-app.post("/survey", SurveyController.createSurvey);
-app.get("/survey", SurveyController.getSurvey);
-app.get("/survey/:id", SurveyController.getSurveyById);
-app.put("/survey/:id", SurveyController.updateSurvey);
-app.delete("/survey/:id", SurveyController.deleteSurvey);
+app.post("/survey", SurverController.createSurvey);
+app.get("/survey", SurverController.getSurvey);
+app.get("/survey/:surveyId", SurverController.getSurveyById);
+app.put("/survey/:surveyId", SurverController.updateSurvey);
+app.delete("/survey/:surveyId", SurverController.deleteSurvey);
 //#endregion
 
 //#region SURVEY-ITEMS
-app.post("/survey-items", SurveyItemsController.createSurveyItems);
-app.get("/survey-items", SurveyItemsController.getSurveyItems);
-app.get("/survey-items/:id", SurveyItemsController.getSurveyItemsById);
+app.post("/survey-items", SurverItemsController.createSurveyItems);
+app.get("/survey-items", SurverItemsController.getSurveyItems);
+app.get(
+  "/survey-items/:surveyItemId",
+  SurverItemsController.getSurveyItemsById
+);
 app.get(
   "/survey-items/survey/:surveyId",
-  SurveyItemsController.getSurveyItemsBySurveyId
+  SurverItemsController.getSurveyItemsBySurveyId
 );
-app.put("/survey-items/:id", SurveyItemsController.updateSurveyItems);
-app.delete("/survey-items/:id", SurveyItemsController.deleteSurveyItems);
+app.put("/survey-items/:surveyItemId", SurverItemsController.updateSurveyItems);
+app.delete(
+  "/survey-items/:surveyItemId",
+  SurverItemsController.deleteSurveyItems
+);
 //#endregion
 
 //#region POLL-ITEMS
 app.post("/poll-items", PollItemsController.createPollItems);
 app.get("/poll-items", PollItemsController.getPollItems);
-app.get("/poll-items/:id", PollItemsController.getPollItemsById);
+app.get("/poll-items/:pollItemId", PollItemsController.getPollItemsById);
 app.get(
   "/poll-items/surveyItems/:surveyItemId",
   PollItemsController.getPollItemsBySurveyItemId
 );
-app.put("/poll-items/:id", PollItemsController.updatePollItems);
-app.delete("/poll-items/:id", PollItemsController.deletePollItems);
+app.put("/poll-items/:pollItemId", PollItemsController.updatePollItems);
+app.delete("/poll-items/:pollItemId", PollItemsController.deletePollItems);
 
 //#endregion
 

@@ -154,7 +154,7 @@ module.exports.deleteSurvey = async function (req, res) {
     const { Item } = await dynamoDbClient.send(new GetCommand(params));
     if (Item) {
       await dynamoDbClient.send(new DeleteCommand(params));
-      res.status(200).json({ message: "Survey deleted successfully" });
+      res.status(204).json({ message: "Survey deleted successfully" });
     } else {
       res
         .status(404)
