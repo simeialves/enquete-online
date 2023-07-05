@@ -10,7 +10,11 @@ const options = {
       description: "API",
     },
   },
-  apis: ["./routes/surveyRoutes.js"],
+  apis: [
+    "./docs/SurveyDocs.js",
+    "./docs/SurveyItemsDocs.js",
+    "./docs/PollItemsDocs.js",
+  ],
 };
 
 const swaggerSpec = swaggerJsDoc(options);

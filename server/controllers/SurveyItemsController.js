@@ -21,13 +21,11 @@ const { v4: uuidv4 } = require("uuid");
 app.use(express.json());
 //#region CREATE
 module.exports.createSurveyItems = async function (req, res) {
-  const { surveyId, description, votes } = req.body;
+  const { surveyId, description } = req.body;
   if (typeof surveyId !== "string") {
     res.status(400).json({ error: '"surveyId" must be a string' });
   } else if (typeof description !== "string") {
     res.status(400).json({ error: '"description" must be a string' });
-  } else if (typeof votes !== "string") {
-    res.status(400).json({ error: '"votes" must be a string' });
   }
 
   const surveyItemId = uuidv4();
@@ -38,13 +36,12 @@ module.exports.createSurveyItems = async function (req, res) {
       surveyItemId: surveyItemId,
       surveyId: surveyId,
       description: description,
-      votes: votes,
     },
   };
 
   try {
     await dynamoDbClient.send(new PutCommand(params));
-    res.json({ surveyItemId, surveyId, description, votes });
+    res.json({ surveyItemId, surveyId, description });
   } catch (error) {
     console.log(error);
     res
@@ -86,8 +83,8 @@ module.exports.getSurveyItemsById = async function (req, res) {
   try {
     const { Item } = await dynamoDbClient.send(new GetCommand(params));
     if (Item) {
-      const { surveyItemId, surveyId, description, votes } = Item;
-      res.json({ surveyItemId, surveyId, description, votes });
+      const { surveyItemId, surveyId, description } = Item;
+      res.json({ surveyItemId, surveyId, description });
     } else {
       res.status(404).json({
         error: 'Could not find survey-items with provided "surveyItemId"',
@@ -113,8 +110,8 @@ module.exports.getSurveyItemsBySurveyId = async function (req, res) {
     const { Items } = await dynamoDbClient.send(new ScanCommand(params));
     if (Items && Items.length > 0) {
       const surveyItems = Items.map((item) => {
-        const { surveyItemId, surveyId, description, votes } = item;
-        return { surveyItemId, surveyId, description, votes };
+        const { surveyItemId, surveyId, description } = item;
+        return { surveyItemId, surveyId, description };
       });
       res.json(surveyItems);
     } else {
@@ -135,14 +132,12 @@ module.exports.getSurveyItemsBySurveyId = async function (req, res) {
 //#region UPDATE
 module.exports.updateSurveyItems = async function (req, res) {
   const { surveyItemId } = req.params;
-  const { surveyId, description, votes } = req.body;
+  const { surveyId, description } = req.body;
 
   if (typeof surveyId !== "string") {
     res.status(400).json({ error: '"surveyId" must be a string' });
   } else if (typeof description !== "string") {
     res.status(400).json({ error: '"description" must be a string' });
-  } else if (typeof votes !== "string") {
-    res.status(400).json({ error: '"votes" must be a string' });
   }
 
   const params = {
@@ -150,17 +145,14 @@ module.exports.updateSurveyItems = async function (req, res) {
     Key: {
       surveyItemId: surveyItemId,
     },
-    UpdateExpression:
-      "SET #surveyId = :surveyId, #description = :description, #votes = :votes",
+    UpdateExpression: "SET #surveyId = :surveyId, #description = :description",
     ExpressionAttributeNames: {
       "#surveyId": "surveyId",
       "#description": "description",
-      "#votes": "votes",
     },
     ExpressionAttributeValues: {
       ":surveyId": surveyId,
       ":description": description,
-      ":votes": votes,
     },
     ReturnValues: "ALL_NEW",
   };

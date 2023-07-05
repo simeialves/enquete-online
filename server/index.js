@@ -14,33 +14,39 @@ app.use(express.json());
 //#region SURVEY
 app.post("/survey", SurveyController.createSurvey);
 app.get("/survey", SurveyController.getSurvey);
-app.get("/survey/:id", SurveyController.getSurveyById);
-app.put("/survey/:id", SurveyController.updateSurvey);
-app.delete("/survey/:id", SurveyController.deleteSurvey);
+app.get("/survey/:surveyId", SurveyController.getSurveyById);
+app.put("/survey/:surveyId", SurveyController.updateSurvey);
+app.delete("/survey/:surveyId", SurveyController.deleteSurvey);
 //#endregion
 
 //#region SURVEY-ITEMS
 app.post("/survey-items", SurveyItemsController.createSurveyItems);
 app.get("/survey-items", SurveyItemsController.getSurveyItems);
-app.get("/survey-items/:id", SurveyItemsController.getSurveyItemsById);
+app.get(
+  "/survey-items/:surveyItemId",
+  SurveyItemsController.getSurveyItemsById
+);
 app.get(
   "/survey-items/survey/:surveyId",
   SurveyItemsController.getSurveyItemsBySurveyId
 );
-app.put("/survey-items/:id", SurveyItemsController.updateSurveyItems);
-app.delete("/survey-items/:id", SurveyItemsController.deleteSurveyItems);
+app.put("/survey-items/:surveyItemId", SurveyItemsController.updateSurveyItems);
+app.delete(
+  "/survey-items/:surveyItemId",
+  SurveyItemsController.deleteSurveyItems
+);
 //#endregion
 
 //#region POLL-ITEMS
 app.post("/poll-items", PollItemsController.createPollItems);
 app.get("/poll-items", PollItemsController.getPollItems);
-app.get("/poll-items/:id", PollItemsController.getPollItemsById);
+app.get("/poll-items/:pollItemId", PollItemsController.getPollItemsById);
 app.get(
-  "/poll-items/surveyItems/:surveyItemId",
+  "/poll-items/survey-items/:surveyItemId",
   PollItemsController.getPollItemsBySurveyItemId
 );
-app.put("/poll-items/:id", PollItemsController.updatePollItems);
-app.delete("/poll-items/:id", PollItemsController.deletePollItems);
+app.put("/poll-items/:pollItemId", PollItemsController.updatePollItems);
+app.delete("/poll-items/:pollItemId", PollItemsController.deletePollItems);
 
 //#endregion
 

@@ -129,6 +129,14 @@ module.exports.updateSurvey = async function (req, res) {
     ReturnValues: "ALL_NEW",
   };
 
+  if (name !== undefined) {
+    params.ExpressionAttributeValues[":name"] = name;
+  }
+
+  if (status !== undefined) {
+    params.ExpressionAttributeValues[":status"] = status;
+  }
+
   try {
     const result = await dynamoDbClient.send(new UpdateCommand(params));
     res.json(result.Attributes);
