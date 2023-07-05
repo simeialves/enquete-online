@@ -1,31 +1,25 @@
-const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-const express = require("express");
-const app = express();
-
-app.use(express.json());
 
 const options = {
-  definition: {
+  swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "Api de Enquete-Online",
+      title: "API Enquete-Online",
       version: "1.0.0",
-      description: "Api de Enquete-Online",
+      description: "API",
     },
   },
-  apis: ["./index.js"],
+  apis: ["./routes/surveyRoutes.js"],
 };
 
-const specs = swaggerJsdoc(options);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+const swaggerSpec = swaggerJsDoc(options);
 
-app.use("/", (req, res) => {
-  res.send("Hello World");
-});
+const serveSwaggerUI = swaggerUi.serve;
+const setupSwaggerUI = swaggerUi.setup(swaggerSpec);
 
-app.listen(5000, () => {
-  console.log(
-    "Swagger documentation available at https://localhost:5000/api-docs"
-  );
-});
+module.exports = {
+  swaggerSpec,
+  serveSwaggerUI,
+  setupSwaggerUI,
+};
