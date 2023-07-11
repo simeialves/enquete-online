@@ -33,7 +33,7 @@ Responsável por gerenciar a lógica das enquetes. É desenvolvido em Node.js e 
 
 Armazena os dados do sistema. Utilizamos o banco de dados DynamDB para garantir a consitência e integridade dos dados.
 
-### Documentação da API
+### Documentação da API:
 
     https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/api-docs
 
