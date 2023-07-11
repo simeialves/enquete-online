@@ -33,6 +33,10 @@ Responsável por gerenciar a lógica das enquetes. É desenvolvido em Node.js e 
 
 Armazena os dados do sistema. Utilizamos o banco de dados DynamDB para garantir a consitência e integridade dos dados.
 
+### Documentação da API
+
+    https://kofgvsu30l.execute-api.us-east-1.amazonaws.com/api-docs
+
 ## Fluxo de Dados
 O fluxo de dados no sistema "Enquete-Online" é o seguinte:
 O GraphQL envia uma solicitação HTTP para o backend para realizando a criação e finalização de enquetes e adição de votos.
