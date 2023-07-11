@@ -1,5 +1,9 @@
 {
   "name": "apollo",
+  "graphdoc": {
+    "endpoint": "http://localhost:4000",
+    "output": "./doc/schema"
+  },
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
